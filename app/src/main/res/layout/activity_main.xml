@@ -6,10 +6,19 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+<!--    Đặt tên id theo mẫu:-->
+<!--       vd: Button => buttonAdd, -->
+<!--            TextView => textResult, textOperator -->
+<!--           RecyclerView => recyclerItems -->
+<!--    ... -->
+
+<!--    Không để hard code trong string, -->
+<!--    code không để hiện báo vàng (warning) -->
+
     <Button
-        android:id="@+id/btnC"
+        android:id="@+id/buttonC"
         style="@style/ButtonCalculator"
-        android:text="C"
+        android:text="@string/title_c"
         app:layout_constraintBottom_toBottomOf="@+id/btnCE"
         app:layout_constraintEnd_toEndOf="@+id/btnnumber9"
         app:layout_constraintStart_toStartOf="@+id/btnnumber9"
@@ -108,10 +117,12 @@
         app:layout_constraintStart_toStartOf="@+id/btnnumber1"
         app:layout_constraintWidth_percent="0.23" />
 
+<!--    Không để hard code dimens, khai báo trong dimens.xml
+    8dp => dp_8-->
     <Button
         android:id="@+id/btnnumber1"
         style="@style/ButtonCalculator"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="@dimen/dp_8"
         android:text="1"
         app:layout_constraintBottom_toTopOf="@+id/button7"
         app:layout_constraintEnd_toEndOf="@+id/button7"
@@ -239,10 +250,10 @@
         android:id="@+id/btndiv"
         style="@style/ButtonCalculator"
         android:text="/"
-        app:layout_constraintBottom_toBottomOf="@+id/btnC"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonC"
         app:layout_constraintEnd_toEndOf="@+id/btnmul"
         app:layout_constraintStart_toStartOf="@+id/btnmul"
-        app:layout_constraintTop_toTopOf="@+id/btnC"
+        app:layout_constraintTop_toTopOf="@+id/buttonC"
         app:layout_constraintWidth_percent="0.23" />
 
     <TextView
@@ -261,3 +272,4 @@
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+<!--Để 1 dòng trống ở cuối mỗi file tránh việc biên dịch lỗi -->

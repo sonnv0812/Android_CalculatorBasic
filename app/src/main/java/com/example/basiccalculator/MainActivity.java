@@ -9,10 +9,20 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    TextView textResult;
-    int state;
-    int op1, op2;
-    int op;
+    /**
+     * Follow theo coding conventions của google: https://source.android.com/setup/contribute/code-style
+     */
+
+    /**
+     * Để access-modifier là private nếu không có nhu cầu truy cập từ class khác
+     * Đặt tên biến đầy đủ, có thể đọc được: operand1, operand2
+     */
+
+    private static final int OPERATOR_ADD = 1;
+    private int state;
+    private int operand1, operand2;
+    private int operator;
+    private TextView textResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,12 +50,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.btnequal).setOnClickListener(this);
 
         findViewById(R.id.btnBS).setOnClickListener(this);
-        findViewById(R.id.btnC).setOnClickListener(this);
+        findViewById(R.id.buttonC).setOnClickListener(this);
         findViewById(R.id.btnCE).setOnClickListener(this);
 
         state = 1;
-        op1 = op2 = 0;
-        op = 0;
+        operand1 = operand2 = 0;
+        operator = 0;
         textResult.setText(String.valueOf(0));
     }
 
@@ -54,11 +64,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int id = view.getId();
 
         switch (id) {
+            /**
+             * Không để hard code như này nhé, cần để vào hằng số
+             * Có thể tạo 1 class khác lưu các loại operators, và 1 class lưu các loại state
+             */
             case R.id.btnadd:
-                selectOperator(1);
+                selectOperator(Operator.ADD);
                 break;
             case R.id.btnsub:
-                selectOperator(2);
+                selectOperator(Operator.SUB);
                 break;
             case R.id.btnmul:
                 selectOperator(3);
@@ -75,83 +89,98 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btnCE:
                 clearCurrentOperand();
                 break;
-            case R.id.btnC:
+            case R.id.buttonC:
                 state = 1;
-                op1 = op2 = 0;
-                op = 0;
+                operand1 = operand2 = 0;
+                operator = 0;
                 textResult.setText(String.valueOf(0));
                 break;
             default:
+                // Sử dụng parse Int thay vì valueOf để tránh tạo thêm các biến rác trong quá trình sinh byte code
                 addDigit(Integer.valueOf(((Button)view).getText().toString()));
         }
     }
 
     private void selectOperator(int _op) {
-        op = _op;
+        operator = _op;
         state = 2;
     }
 
     private void addDigit(int digit) {
         if (state == 1) {
-            if (op1 < 0)
-                op1 = op1 * 10 - digit;
+            if (operand1 < 0)
+                operand1 = operand1 * 10 - digit;
             else
-                op1 = op1 * 10 + digit;
-            textResult.setText(String.valueOf(op1));
+                operand1 = operand1 * 10 + digit;
+            textResult.setText(String.valueOf(operand1));
         }
         else {
-            if (op2 < 0)
-                op2 = op2 * 10 - digit;
+            if (operand2 < 0)
+                operand2 = operand2 * 10 - digit;
             else
-                op2 = op2 * 10 + digit;
-            textResult.setText(String.valueOf(op2));
+                operand2 = operand2 * 10 + digit;
+            textResult.setText(String.valueOf(operand2));
         }
     }
 
     private void calculateResult() {
+        /**
+         * Nếu các khối lệnh if else có 3 nhánh trở lên, dùng switch-case để khiến code dễ đọc hơn
+         *          switch (operator){
+         *             case Operator.ADD: result = operand1 + operand2; break;
+         *         }
+         */
         int result = 0;
-        if (op == 1)
-            result = op1 + op2;
-        else if (op == 2)
-            result = op1 - op2;
-        else if (op == 3)
-            result = op1 * op2;
+        if (operator == 1)
+            result = operand1 + operand2;
+        else if (operator == 2)
+            result = operand1 - operand2;
+        else if (operator == 3)
+            result = operand1 * operand2;
         else {
-            if (op2 != 0)
-                result = op1 / op2;
+            if (operand2 != 0)
+                result = operand1 / operand2;
         }
 
-        if (op == 4 && op2 == 0)
+        /**
+         * Những đoạn text hiển thị cho người dùng nhìn thấy thì nên đặt trong strings.xml để tiện cho việc chuyển đổi ngôn ngữ
+         * String finalResult = (operator == 4 && operand2 == 0) ? getString(R.string.msg_error) : result.toString();
+         */
+        if (operator == 4 && operand2 == 0)
             textResult.setText("ERROR");
         else
             textResult.setText(String.valueOf(result));
 
         // Quay lai trang thai 1
+        /**
+         * Đặt tên rõ ràng state để khi code không cần phải comment mà vẫn hiểu được code
+         * state = States.SOME_THING;
+         */
         state = 1;
-        op1 = 0;
-        op2 = 0;
-        op = 0;
+        operand1 = 0;
+        operand2 = 0;
+        operator = 0;
     }
 
     private void removeDigit() {
         if (state == 1) {
-            op1 = op1 / 10;
-            textResult.setText(String.valueOf(op1));
+            operand1 = operand1 / 10;
+            textResult.setText(String.valueOf(operand1));
         }
         else {
-            op2 = op2 / 10;
-            textResult.setText(String.valueOf(op2));
+            operand2 = operand2 / 10;
+            textResult.setText(String.valueOf(operand2));
         }
     }
 
     private void clearCurrentOperand() {
         if (state == 1) {
-            op1 = 0;
-            textResult.setText(String.valueOf(op1));
+            operand1 = 0;
+            textResult.setText(String.valueOf(operand1));
         }
         else {
-            op2 = 0;
-            textResult.setText(String.valueOf(op2));
+            operand2 = 0;
+            textResult.setText(String.valueOf(operand2));
         }
     }
 }
