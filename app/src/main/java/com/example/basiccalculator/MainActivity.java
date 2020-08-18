@@ -18,7 +18,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Đặt tên biến đầy đủ, có thể đọc được: operand1, operand2
      */
 
-    private static final int OPERATOR_ADD = 1;
+    private static final int STATE_OPERAND_FIRST = 1;
+    private static final int STATE_OPERAND_SECOND = 2;
     private int state;
     private int operand1, operand2;
     private int operator;
@@ -53,9 +54,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.buttonC).setOnClickListener(this);
         findViewById(R.id.btnCE).setOnClickListener(this);
 
-        state = 1;
+        state = STATE_OPERAND_FIRST;
         operand1 = operand2 = 0;
-        operator = 0;
+        operator = Operator.INIT;
         textResult.setText(String.valueOf(0));
     }
 
@@ -75,10 +76,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 selectOperator(Operator.SUB);
                 break;
             case R.id.btnmul:
-                selectOperator(3);
+                selectOperator(Operator.MUL);
                 break;
             case R.id.btndiv:
-                selectOperator(4);
+                selectOperator(Operator.DIV);
                 break;
             case R.id.btnequal:
                 calculateResult();
@@ -90,24 +91,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 clearCurrentOperand();
                 break;
             case R.id.buttonC:
-                state = 1;
+                state = STATE_OPERAND_FIRST;
                 operand1 = operand2 = 0;
-                operator = 0;
+                operator = Operator.INIT;
                 textResult.setText(String.valueOf(0));
                 break;
             default:
-                // Sử dụng parse Int thay vì valueOf để tránh tạo thêm các biến rác trong quá trình sinh byte code
-                addDigit(Integer.valueOf(((Button)view).getText().toString()));
+                //Sử dụng parse Int thay vì valueOf để tránh tạo thêm các biến rác trong quá trình sinh byte code
+                addDigit(Integer.parseInt(((Button)view).getText().toString()));
         }
     }
 
     private void selectOperator(int _op) {
         operator = _op;
-        state = 2;
+        state = STATE_OPERAND_SECOND;
     }
 
     private void addDigit(int digit) {
-        if (state == 1) {
+        if (state == STATE_OPERAND_FIRST) {
             if (operand1 < 0)
                 operand1 = operand1 * 10 - digit;
             else
@@ -131,23 +132,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          *         }
          */
         int result = 0;
-        if (operator == 1)
-            result = operand1 + operand2;
-        else if (operator == 2)
-            result = operand1 - operand2;
-        else if (operator == 3)
-            result = operand1 * operand2;
-        else {
-            if (operand2 != 0)
-                result = operand1 / operand2;
+        switch (operator) {
+            case Operator.ADD:
+                result = operand1 + operand2;
+                break;
+            case Operator.SUB:
+                result = operand1 - operand2;
+                break;
+            case Operator.MUL:
+                result = operand1 * operand2;
+                break;
+            case Operator.DIV:
+                if (operand2 != 0)
+                    result = operand1 / operand2;
+                break;
         }
 
         /**
          * Những đoạn text hiển thị cho người dùng nhìn thấy thì nên đặt trong strings.xml để tiện cho việc chuyển đổi ngôn ngữ
          * String finalResult = (operator == 4 && operand2 == 0) ? getString(R.string.msg_error) : result.toString();
          */
-        if (operator == 4 && operand2 == 0)
-            textResult.setText("ERROR");
+        if (operator == Operator.DIV && operand2 == 0)
+            textResult.setText(R.string.msg_error);
         else
             textResult.setText(String.valueOf(result));
 
@@ -156,14 +162,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          * Đặt tên rõ ràng state để khi code không cần phải comment mà vẫn hiểu được code
          * state = States.SOME_THING;
          */
-        state = 1;
+        state = STATE_OPERAND_FIRST;
         operand1 = 0;
         operand2 = 0;
-        operator = 0;
+        operator = Operator.INIT;
     }
 
     private void removeDigit() {
-        if (state == 1) {
+        if (state == STATE_OPERAND_FIRST) {
             operand1 = operand1 / 10;
             textResult.setText(String.valueOf(operand1));
         }
@@ -174,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void clearCurrentOperand() {
-        if (state == 1) {
+        if (state == STATE_OPERAND_FIRST) {
             operand1 = 0;
             textResult.setText(String.valueOf(operand1));
         }

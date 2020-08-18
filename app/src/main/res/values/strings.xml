@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">BasicCalculator</string>
     <string name="title_c">C</string>
+    <string name="msg_error">ERORR</string>
 </resources>
